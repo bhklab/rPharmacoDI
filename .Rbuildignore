@@ -1,0 +1,7 @@
+scripts
+scripts/*
+data/rawdata
+data/rawdata/*
+.idea/*
+.gitignore
+R/.deprecated.R
