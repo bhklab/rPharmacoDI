@@ -9,7 +9,7 @@
 #' @import PharmacoGx
 #' @export
 convertGeneSignatureToDT <- function(geneSig) {
-    geneSigDT <- data.table(geneSig@.Data[,,], keep.rownames='gene')
+    geneSigDT <- data.table(geneSig@.Data[, , ], keep.rownames='gene')
     geneSigDT$pSet <- rep(geneSig@PSetName, nrow(geneSigDT))
     geneSigDT$drug <- geneSig@Arguments$drugs
     geneSigDT$mDataType <- geneSig@Arguments$mDataType
@@ -23,6 +23,7 @@ convertGeneSignatureToDT <- function(geneSig) {
 #' @param pSetPattern [`character`] an identifier for the Pset you wish to read. In general this will be the
 #'    pSet indentifier (e.g., GDSC_v1). '.*' is automatically prepended and appended to the pattern, so adding
 #'    this is not necssary.
+#' @param mDataTypes [`character`] directory names for each molecular datatype to read gene signatures for.
 #' @param BPPARAM [`BiocParam`] object specifying what backend to use for parallelization. This defaults to your
 #'    registered back-end, retrieved via the `bpparam()` function.
 #'
@@ -31,10 +32,15 @@ convertGeneSignatureToDT <- function(geneSig) {
 #' @import data.table
 #' @importFrom BiocParallel bplapply bpparam
 #' @export
-readGeneSigsForPSet <- function(dataDir, pSetPattern, BPPARAM=BiocParallel::bpparam()) {
-    pSetFiles <- list.files(dataDir, pattern=paste0(".*", pSetPattern, ".*"), full.names=TRUE)
+readGeneSigsForPSet <- function(dataDir, pSetPattern, mDataTypes, BPPARAM=BiocParallel::bpparam()) {
+    dataDirL <- vapply(mDataTypes, function(x, y) paste0(y, '/', x), y=dataDir, FUN.VALUE=character(1))
+    pSetFilesL <- lapply(dataDirL, FUN=list.files, pattern=paste0(".*", pSetPattern, ".*"), full.names=TRUE)
+    mDTlengths <- vapply(pSetFilesL, length, numeric(1))
+    fileMDataTypes <- unlist(mapply(rep, mDataTypes, each=mDTlengths))
+    pSetFiles <- unlist(pSetFilesL)
     pSetGeneSigs <- bplapply(pSetFiles, FUN=readRDS, BPPARAM=BPPARAM)
-    names(pSetGeneSigs) <- gsub("^.*/|.rds$", "", pSetFiles)
+
+    names(pSetGeneSigs) <- paste(fileMDataTypes, gsub("^.*/[^/]*/|.rds$", "", pSetFiles), sep='_')
     return(pSetGeneSigs)
 }
 
@@ -56,7 +62,7 @@ mergePSetGeneSigsToDT <- function(geneSigL, saveDir, fileName, BPPARAM=bpparam()
     geneSigDTs <- bplapply(geneSigL, convertGeneSignatureToDT, BPPARAM=BPPARAM)
     tissues <- gsub("^.*_", "", names(geneSigL))
 
-    .annotateTissue <- function(DT, tissueName) {DT[["tissue"]] <- rep(tissueName, nrow(DT)); return(DT)}
+    .annotateTissue <- function(DT, tissueName) { DT[["tissue"]] <- rep(tissueName, nrow(DT)); return(DT) }
     # TODO:: Determine if I change geneSigL to geneSigE (environment), can I modify each DT by reference without needing to copy the environment?
     geneSigDTs <- mapply(FUN=.annotateTissue,
                          DT=geneSigDTs, tissueName=tissues,

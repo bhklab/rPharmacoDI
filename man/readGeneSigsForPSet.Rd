@@ -4,7 +4,12 @@
 \alias{readGeneSigsForPSet}
 \title{Takes in the path to a set of gene signature .rds files, selects those pathing `pSetPattern` and converts them}
 \usage{
-readGeneSigsForPSet(dataDir, pSetPattern, BPPARAM = BiocParallel::bpparam())
+readGeneSigsForPSet(
+  dataDir,
+  pSetPattern,
+  mDataTypes,
+  BPPARAM = BiocParallel::bpparam()
+)
 }
 \arguments{
 \item{dataDir}{[`character`] vector specifying the path to the gene signature .rds files}
@@ -12,6 +17,8 @@ readGeneSigsForPSet(dataDir, pSetPattern, BPPARAM = BiocParallel::bpparam())
 \item{pSetPattern}{[`character`] an identifier for the Pset you wish to read. In general this will be the
 pSet indentifier (e.g., GDSC_v1). '.*' is automatically prepended and appended to the pattern, so adding
 this is not necssary.}
+
+\item{mDataTypes}{[`character`] directory names for each molecular datatype to read gene signatures for.}
 
 \item{BPPARAM}{[`BiocParam`] object specifying what backend to use for parallelization. This defaults to your
 registered back-end, retrieved via the `bpparam()` function.}

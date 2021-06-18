@@ -1,7 +1,7 @@
 Package: rPharmacoDI
 Type: Package
-Version: 0.0.1
-Date: 2020-07-05
+Version: 0.0.2
+Date: 2021-06-18
 Title: PharmacoDB Data Ingestion - functions for converting pSets to PharmacoDB database tables
 Description: The rPharmacoDI packages provides functions to exporting a pSet object to raw .csv files, which can then
     be read into Python for processing into the database tables used for seeding PharmacoDB. Additional utility function

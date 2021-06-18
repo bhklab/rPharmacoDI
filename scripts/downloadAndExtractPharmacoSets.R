@@ -19,5 +19,7 @@ canonicalPSets <- bplapply(canonicalPSetDF$`PSet Name`, FUN=downloadPSet, saveDi
 # -- Extract into filePath
 # This is technically bad practice, because I am using a function looping construct
 #   for it's side effects only. But it is the easiest way to parallelize this.
-# TODO:: Does this break our RAM usage?
+# TODO:: Does this break our RAM usage? No put it peaks around 80 GB, so it will break
+#   if we ever lower this VMs RAM below that. Can I check that from R?
+
 bplapply(canonicalPSets, FUN=writeToCsv, filePath=filePath)

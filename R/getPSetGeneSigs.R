@@ -14,7 +14,7 @@ library(PharmacoGx)
 #' 
 #' @importFrom BiocParallel bplapply
 #' @importFrom data.table fread data.table
-#' @importFrom PharmacoGx SignatureClass
+#' @import PharmacoGx
 #' @export
 getPSetGeneSigs <- function(filePath, pattern, save=TRUE) {
     
