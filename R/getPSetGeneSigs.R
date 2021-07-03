@@ -1,7 +1,3 @@
-library(data.table)
-library(BiocParallel)
-library(PharmacoGx)
-
 #' Read in all the gene signatures for a PharmacoSet and assemble into a single `data.table`
 #' 
 #' @param filePath [`character`] Where to search for the `pattern` argument to get the file paths for the

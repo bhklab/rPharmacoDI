@@ -5,7 +5,9 @@
 #' @return NULL Writes files to `filePath`
 #'
 #' @import data.table
-geneAnnotationToCSV <- function(filePath=file.path("../..", "data", "metadata"), pattern="Gencode.v33.annotation.*") {
+geneAnnotationToCSV <- function(filePath=file.path("../..", "data", "metadata"), 
+    pattern="Gencode.v33.annotation.*") 
+{
     files <- list.files(filePath, pattern=paste0(pattern, '.RData'))
     fileNames <- list()
     for (file in files) {

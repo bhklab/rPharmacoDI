@@ -7,8 +7,9 @@
 #' @import data.table
 #' @export
 removeNonASCII <- function(df) {
-  DT <- data.table(df, keep.rownames='rn')
-  charCols <- colnames(DT)[vapply(DT, is.character, logical(1))]
-  DT[, (charCols) := lapply(.SD, iconv, from='ascii', to='ascii', sub=''), .SDcols=charCols]
-  return(data.frame(DT[, -'rn'], row.names=DT$rn))
+    DT <- data.table(df, keep.rownames='rn')
+    charCols <- colnames(DT)[vapply(DT, is.character, logical(1))]
+    DT[, (charCols) := lapply(.SD, iconv, from='ascii', to='ascii', sub=''), 
+        .SDcols=charCols]
+    return(data.frame(DT[, -'rn'], row.names=DT$rn))
 }

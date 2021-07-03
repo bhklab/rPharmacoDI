@@ -19,17 +19,16 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
     pSetDir <- paste0(objectName, '_PSet')
 
     tryCatch({ dir.create(file.path(filePath, pSetDir)) },
-             warning=function(w)
-                 message(paste0('\n', pSetDir,
-                                ' directory already exists, writing .csv files there\n'))
+        warning=function(w) message(paste0('\n', pSetDir,
+            ' directory already exists, writing .csv files there\n'))
     )
 
     if (!grepl(paste0('.*', objectName, '$'), filePath)) {
         filePath <- file.path(filePath, pSetDir)
     } else {
         message(paste0('\nFYI: It is not necessay to specify the ',
-                       pSetDir, 'directroy in `filePath\n. We have
-                       already do that for you :-)\n'))
+            pSetDir, 'directroy in `filePath\n. We have
+            already do that for you :-)\n'))
     }
 
     message(paste0('Writing ', objectName, ' to csv in: \n\t', filePath, '\n'))
@@ -98,10 +97,10 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
         # loop over each data.table, save to disk with appropraite name
         for (j in seq_along(dataTableNames)) {
             fwrite(dataTableList[[j]],
-                   file=file.path(filePath,
-                                  paste0(objectName, '@molecularProfiles$', # pset + slot
-                                         sumExperName, '$', # summarized experiment name
-                                         dataTableNames[j], '.csv.gz') # table name
+                file=file.path(filePath,
+                    paste0(objectName, '@molecularProfiles$', # pset + slot
+                        sumExperName, '$', # summarized experiment name
+                        dataTableNames[j], '.csv.gz') # table name
                    ),
                    compress='gzip')
         }
@@ -145,7 +144,8 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
     # Converts R code needed to recreate each object as a string; can string parse the data out of them in Python
     #   or simply use `eval(parse(text=<code as string>))`; for S4 classes, there may be issues recreating them
     #   due to different package versions using different constructor synatx
-    .captureCodeAsString <- function(object) paste0(capture.output(dput(object)), collapse='')
+    .captureCodeAsString <- function(object) 
+        paste0(capture.output(dput(object)), collapse='')
 
     metadataDT <- as.data.table(lapply(metadata(SE), .captureCodeAsString))
 
@@ -155,22 +155,25 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
 }
 
 
-#' Write the annotation listt in a PharmacoSet to a text file
+#' Write the annotation list in a PharmacoSet to a text file
 #'
 #' Each list item is one line, lines in each item are separated with `sepChar` so they
 #'  can be split into to their original stucture.
 #'
-#' @param annotations [`list`] Annotations as returned by the `annotaiton` function
-#' @param path [`character`] The path to save the output file to.
-#' @param objectName [`character`] The name of the PSet the annotations are from.
-#' @param sepChar [`character`] Separator to use when pasting together multiple lines of a list item.
+#' @param annotations `list` Annotations as returned by the `annotaiton` function
+#' @param dsType `character(1)` 
+#' @param filePath `character(1)` The path to save the output file to.
+#' @param objectName `character(1)` The name of the PSet the annotations are from.
+#' @param sepChar `character(1)` Separator to use when pasting together 
+#'   multiple lines of a list item.
 #'
 #' @return Writes to disk, does not return.
 #'
 #' @keywords internal
 #' @export
-.writeAnnotationToTxt <- function(annotations, dsType, filePath, objectName, sepChar="|||") {
-
+.writeAnnotationToTxt <- function(annotations, dsType, filePath, objectName, 
+    sepChar="|||") 
+{
     file <- file.path(filePath, paste0(objectName, '@annotations.txt'))
 
     # -- Date Created
@@ -185,7 +188,8 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
     # -- Version
     version <- annotations$version
 
-    annots <- rbind(objectName, dateCreated, sessInfo, creationCall, version, dsType)
+    annots <- rbind(objectName, dateCreated, sessInfo, creationCall, version, 
+        dsType)
 
     write.table(annots, file=file, sep="\n", row.names=FALSE, col.names=FALSE)
 }
@@ -201,9 +205,10 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
     sensSlotDTs <- .sensSlotToDataTables(sensSlot)
     for (i in seq_along(sensSlotDTs))
         fwrite(sensSlotDTs[[i]],
-               file=file.path(filePath,
-                              paste0(objectName, '@sensitivity$', names(sensSlotDTs)[i], '.csv.gz')),
-               compress='gzip')
+            file=file.path(filePath,
+                paste0(objectName, '@sensitivity$', names(sensSlotDTs)[i], 
+                    '.csv.gz')),
+                compress='gzip')
 }
 
 
@@ -219,19 +224,20 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
 #' @export
 .sensSlotToDataTables <- function(sensSlot) {
 
-   # -- raw
-   .array3rdDimToDataTable <- function(idx, array, rownameLabel)
+    # -- raw
+    .array3rdDimToDataTable <- function(idx, array, rownameLabel)
        data.table(array[,,idx], keep.rownames=rownameLabel)
-   sensRaw <- sensSlot$raw
-   sensData <- lapply(seq_len(dim(sensRaw)[3]),
+    sensRaw <- sensSlot$raw
+    sensData <- lapply(seq_len(dim(sensRaw)[3]),
                       FUN=.array3rdDimToDataTable,
                       # Arguments to function
                       array=sensRaw,
                       rownameLabel='.exp_id')
-   names(sensData) <- paste0('raw.', dimnames(sensRaw)[[3]])
+    names(sensData) <- paste0('raw.', dimnames(sensRaw)[[3]])
 
-   # -- info, prof, n
-   sensMetadata <- lapply(sensSlot[c('info', 'profiles', 'n')], data.table, keep.rownames='.rownames')
+    # -- info, prof, n
+    sensMetadata <- lapply(sensSlot[c('info', 'profiles', 'n')], 
+        FUN=data.table, keep.rownames='.rownames')
 
    # -- merge lists & return
    return(c(sensData, sensMetadata))

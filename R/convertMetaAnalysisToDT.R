@@ -6,7 +6,7 @@
 #' @param saveDir `character(1)` Path to write the output .csv to.
 #' 
 #' @import PharmacoGx
-#' @importFrom BiocParallel
+#' @importFrom BiocParallel bplapply bpparam
 #' @importFrom data.table data.table rbindlist
 #' @export
 convertMetaAnalysisToDT <- function(dataDir, saveDir, fileName='gene_compound.csv') {

@@ -2,7 +2,7 @@
 % Please edit documentation in R/writeToCsv-methods.R
 \name{.writeAnnotationToTxt}
 \alias{.writeAnnotationToTxt}
-\title{Write the annotation listt in a PharmacoSet to a text file}
+\title{Write the annotation list in a PharmacoSet to a text file}
 \usage{
 .writeAnnotationToTxt(
   annotations,
@@ -13,13 +13,16 @@
 )
 }
 \arguments{
-\item{annotations}{[`list`] Annotations as returned by the `annotaiton` function}
+\item{annotations}{`list` Annotations as returned by the `annotaiton` function}
 
-\item{objectName}{[`character`] The name of the PSet the annotations are from.}
+\item{dsType}{`character(1)`}
 
-\item{sepChar}{[`character`] Separator to use when pasting together multiple lines of a list item.}
+\item{filePath}{`character(1)` The path to save the output file to.}
 
-\item{path}{[`character`] The path to save the output file to.}
+\item{objectName}{`character(1)` The name of the PSet the annotations are from.}
+
+\item{sepChar}{`character(1)` Separator to use when pasting together 
+multiple lines of a list item.}
 }
 \value{
 Writes to disk, does not return.

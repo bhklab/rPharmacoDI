@@ -5,3 +5,5 @@ data/rawdata/*
 .idea/*
 .gitignore
 R/.deprecated.R
+.*qs
+tmp.qs
