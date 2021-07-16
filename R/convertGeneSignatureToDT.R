@@ -10,9 +10,11 @@
 #' @export
 convertGeneSignatureToDT <- function(geneSig) {
     geneSigDT <- data.table(geneSig@.Data[, , ], keep.rownames='gene')
-    geneSigDT$pSet <- rep(geneSig@PSetName, nrow(geneSigDT))
-    geneSigDT$drug <- geneSig@Arguments$drugs
+    geneSigDT$dataset <- rep(geneSig@PSetName, nrow(geneSigDT))
+    geneSigDT$compound <- geneSig@Arguments$drugs
     geneSigDT$mDataType <- geneSig@Arguments$mDataType
+    tissues <- geneSig@Arguments$tissues
+    geneSigDT$tissue <- if (length(tissues) == 1) tissues else NA_character_
     return(geneSigDT)
 }
 
