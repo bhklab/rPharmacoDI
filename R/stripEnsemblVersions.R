@@ -11,7 +11,7 @@ setGeneric('stripEnsemblVersion', function(object, ...)
 #' 
 #' @details 
 #' More specifically, this function will regex the `gene_id` column and the
-#' `rownames()` of `rowData()` for all `SummarizedExperiment`s in the 
+#' `rownames()` of `rowData()` for all `SummarizedExperiment`s in the
 #' `@molecularProfiles` slot.
 #' 
 #' @md
@@ -63,6 +63,10 @@ setMethod('stripEnsemblVersion', signature(object='PharmacoSet'),
     return(object)
     
 })
+
+
+
+
 
 #' Regex off Ensembl identifier version numbers
 #' 

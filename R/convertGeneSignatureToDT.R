@@ -64,8 +64,11 @@ mergePSetGeneSigsToDT <- function(geneSigL, saveDir, fileName, BPPARAM=bpparam()
     geneSigDTs <- bplapply(geneSigL, convertGeneSignatureToDT, BPPARAM=BPPARAM)
     tissues <- gsub("^.*_", "", names(geneSigL))
 
-    .annotateTissue <- function(DT, tissueName) { DT[["tissue"]] <- rep(tissueName, nrow(DT)); return(DT) }
-    # TODO:: Determine if I change geneSigL to geneSigE (environment), can I modify each DT by reference without needing to copy the environment?
+    .annotateTissue <- function(DT, tissueName) {
+        DT[["tissue"]] <- rep(tissueName, nrow(DT)); return(DT) 
+    }
+    # TODO:: Determine if I change geneSigL to geneSigE (environment), 
+    #>can I modify each DT by reference without needing to copy the environment?
     geneSigDTs <- mapply(FUN=.annotateTissue,
                          DT=geneSigDTs, tissueName=tissues,
                          SIMPLIFY=FALSE)
