@@ -19,6 +19,7 @@ convertGeneSignatureToDT <- function(geneSig) {
 }
 
 
+
 #' Takes in the path to a set of gene signature .rds files, selects those pathing `pSetPattern` and converts them
 #'
 #' @param dataDir [`character`] vector specifying the path to the gene signature .rds files
