@@ -15,7 +15,7 @@ readSigToDT <- function(file) convertGeneSignatureToDT(readRDS(file))
 setDTthreads(14)
 
 # Move the files with rsync, use this when we get new signatures
-system2('bash', 'scripts/move_signatures.sh')
+#system2('bash', 'scripts/move_signatures.sh')
 
 # ---- 1. Merge RNA analytic and permutations results into a single table
 
