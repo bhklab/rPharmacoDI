@@ -28,7 +28,7 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
     } else {
         message(paste0('\nFYI: It is not necessay to specify the ',
             pSetDir, 'directroy in `filePath\n. We have
-            already do that for you :-)\n'))
+            already do that for you :-)\n')
     }
 
     message(paste0('Writing ', objectName, ' to csv in: \n\t', filePath, '\n'))
@@ -107,7 +107,6 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
     }
 }
 
-
 #' Convert the data in a SummarizedExperiment into a `list` of `data.table`s
 #'
 #' @section Note:
@@ -151,7 +150,7 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
 
     # -- Merge lists and return
     return(c(list('rowData'=rowDataDT, 'colData'=colDataDT, 'metadata'=metadataDT),
-             assaysDtL))
+        assaysDtL))
 }
 
 

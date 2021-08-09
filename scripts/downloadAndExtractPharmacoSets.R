@@ -32,7 +32,7 @@ if (!all(bpok(canonicalPSets))) {
 procCanonicalPSets <- bplapply(canonicalPSets, FUN=stripEnsemblVersion)
 
 ## FIXME:: Remove non-UTF byte from drug metadata brand name drugs[4, 3]
-##>this breaks the Snakemake pipeline everytime.
+##>this breaks the Snakemake pipeline everytime
 
 # -- Extract into filePath
 # This is technically bad practice, because I am using a function looping construct
