@@ -22,3 +22,13 @@ Imports:
 Suggests:
     RadioGx
 RoxygenNote: 7.1.1
+Collate: 
+    'convertGeneSignatureToDT.R'
+    'convertMetaAnalysisToDT.R'
+    'geneAnnotationToCSV.R'
+    'generics.R'
+    'getPSetGeneSigs.R'
+    'removeNonASCII.R'
+    'stripEnsemblVersions.R'
+    'writeToCsv-methods.R'
+    'writeToParquet-methods.R'

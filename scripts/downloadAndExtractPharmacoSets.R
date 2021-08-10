@@ -39,4 +39,4 @@ procCanonicalPSets <- bplapply(canonicalPSets, FUN=stripEnsemblVersion)
 #   for it's side effects only. But it is the easiest way to parallelize this.
 # TODO:: Does this break our RAM usage? No put it peaks around 80 GB, so it will break
 #   if we ever lower this VMs RAM below that. Can I check that from R?
-bplapply(procCanonicalPSets, FUN=writeToCsv, filePath=filePath)
+bplapply(procCanonicalPSets, FUN=writeToParquet, filePath=filePath)

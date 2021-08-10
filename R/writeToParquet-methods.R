@@ -19,7 +19,7 @@ NULL
 #' @import arrow
 #' @import PharmacoGx
 #' @export
-setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePath, ...) {
+setMethod("writeToParquet", signature(object="PharmacoSet"), function(object, filePath, ...) {
 
     objectName <- name(object)
     pSetDir <- paste0(objectName, '_PSet')
@@ -34,9 +34,9 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
     } else {
         message(paste0('\nFYI: It is not necessay to specify the ',
             pSetDir, 'directroy in `filePath`\n. We have
-            already do that for you :-)\n')
+            already do that for you!\n'))
     }
-    
+
     message(paste0('Writing ', objectName, ' to parquet in: \n\t', filePath, '\n'))
 
     message("       --> Writing molecularProfiles slot to disk\n")

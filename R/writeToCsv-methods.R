@@ -28,7 +28,7 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
     } else {
         message(paste0('\nFYI: It is not necessay to specify the ',
             pSetDir, 'directroy in `filePath\n. We have
-            already do that for you :-)\n')
+            already do that for you!\n'))
     }
 
     message(paste0('Writing ', objectName, ' to csv in: \n\t', filePath, '\n'))
@@ -52,7 +52,7 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
 
     .writeDFslotToCsv <- function(slotDF, filePath, objectName, fileSuffix)
         fwrite(data.table(slotDF, keep.rownames='rownames') ,
-               file=file.path(filePath, paste0(objectName, fileSuffix)), compress='gzip')
+            file=file.path(filePath, paste0(objectName, fileSuffix)), compress='gzip')
 
     # -- drug
     message("       --> Writing drug slot to disk\n")

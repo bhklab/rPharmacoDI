@@ -2,6 +2,7 @@ library(rPharmacoDI)
 library(BiocParallel)
 library(data.table)
 library(qs)
+library(arrow)
 
 # ---- 0. Script configuration
 
@@ -119,8 +120,8 @@ rm(rna_dt, cnv_dt); gc(verbose=TRUE)
 
 for (ds in unique(gene_compound_tissue_dataset$dataset)) {
     print(ds)
-    fwrite(gene_compound_tissue_dataset[dataset == ds, ], 
-        file=file.path(outputDir, paste0(ds, '_gene_sig.csv')))
+    arrow::write_parquet(gene_compound_tissue_dataset[dataset == ds, ], 
+        sink=file.path(outputDir, paste0(ds, '_gene_sig.parquet')))
 }
 
 # ---- 3. Pancancer Results
@@ -130,16 +131,17 @@ rna_pancan_files <- list.files(file.path(inputDir, 'rna', 'rnaAnalyticPancan'),
     pattern='.*rds', recursive=TRUE, full.names=TRUE)
 rna_pancan_dt <- rbindlist(bplapply(rna_pancan_files, readSigToDT))
 
+# -- 3.2 CNV pancancer
 cnv_pancan_files <- list.files(file.path(inputDir, 'cnv', 'cnvAnalyticPancan'), 
     pattern='.*rds', recursive=TRUE, full.names=TRUE)
 cnv_pancan_dt <- rbindlist(bplapply(cnv_pancan_files, readSigToDT))
 
-gene_compound_dataset <- rbindlist(list(rna_pancan_dt, cnv_pancan_dt), 
+gene_compound_dataset <- rbindlist(list(rna_pancan_dt, cnv_pancan_dt),
     use.names=TRUE)
 # Fix dataset names
 gene_compound_dataset[dataset == 'CCLE.CTRPv2', dataset := 'CTRPv2']
-fwrite(gene_compound_dataset, file=file.path(outputDir, 'metaanalysis', 
-    'gene_compound_dataset.csv'))
+arrow::write_parquet(gene_compound_dataset, sink=file.path(outputDir, 
+    'metaanalysis', 'gene_compound_dataset.parquet'))
 
 # Remove signature files to save space
-unlink(inputDir, recursive=TRUE)
+#unlink(inputDir, recursive=TRUE)
