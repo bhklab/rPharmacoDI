@@ -8,7 +8,7 @@
 }
 \arguments{
 \item{object}{[`S4`] An object inheriting from the `CoreGx::CoreSet` class, such as a
-`PharmacoSet`, `RadioSet`, `ToxicoSet` or `XevaSet`.}
+`PharmacoSet`, `RadioSet`, `ToxicoSet`.}
 
 \item{filePath}{[`character`] The path to which the .csv files will be written}
 }

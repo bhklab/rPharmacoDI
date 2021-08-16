@@ -2,7 +2,8 @@
 % Please edit documentation in R/convertGeneSignatureToDT.R
 \name{convertGeneSignatureToDT}
 \alias{convertGeneSignatureToDT}
-\title{Take a SignatureClass object, convert it to a data.table and optionally save it to a .csv}
+\title{Take a SignatureClass object, convert it to a data.table and optionally save 
+  it to a .csv}
 \usage{
 convertGeneSignatureToDT(geneSig)
 }
@@ -10,9 +11,11 @@ convertGeneSignatureToDT(geneSig)
 \item{geneSig}{[`PharmacoSig`] object to convert to a `data.table`}
 }
 \value{
-[data.table] containing the results in `geneSig` as a `data.table OR [`NULL`] if you specify `saveDir` and
-    `fileName`, in which case the file is saved to disk instead of returned.
+[data.table] containing the results in `geneSig` as a `data.table 
+  OR [`NULL`] if you specify `saveDir` and `fileName`, in which case the 
+  file is saved to disk instead of returned.
 }
 \description{
-Take a SignatureClass object, convert it to a data.table and optionally save it to a .csv
+Take a SignatureClass object, convert it to a data.table and optionally save 
+  it to a .csv
 }

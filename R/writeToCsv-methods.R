@@ -7,7 +7,7 @@
 #'   name in `filePath`
 #'
 #' @param object [`S4`] An object inheriting from the `CoreGx::CoreSet` class, such as a
-#'  `PharmacoSet`, `RadioSet`, `ToxicoSet` or `XevaSet`.
+#'  `PharmacoSet`, `RadioSet`, `ToxicoSet`.
 #' @param filePath [`character`] The path to which the .csv files will be written
 #'
 #' @import data.table

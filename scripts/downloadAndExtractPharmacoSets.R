@@ -3,6 +3,7 @@ library(rPharmacoDI)
 library(PharmacoGx)
 library(data.table)
 library(BiocParallel)
+library(MultiAssayExperiment)
 
 # -- Configuration
 nthread <- 12
@@ -40,3 +41,30 @@ procCanonicalPSets <- bplapply(canonicalPSets, FUN=stripEnsemblVersion)
 # TODO:: Does this break our RAM usage? No put it peaks around 80 GB, so it will break
 #   if we ever lower this VMs RAM below that. Can I check that from R?
 bplapply(procCanonicalPSets, FUN=writeToParquet, filePath=filePath)
+
+
+## ---- Testing
+if (sys.nframe() == 0) {
+    object <- readRDS('rawdata/GDSC_2020(v1-8.2).rds')
+    MAE <- MultiAssayExperiment(molecularProfilesSlot(object))
+    colDataL <- lapply(experiments(MAE), function(x) as.data.table(colData(x)))
+    colDT <- rbindlist(colDataL, fill=TRUE, use.names=TRUE, idcol='mDataType')
+    colMetaDT <- colDT[, lapply(.SD, 
+        function(x) paste0(unique(na.omit(x)), collapse='|')), by=rownames]
+    rowDataL <- lapply(experiments(MAE), function(x) as.data.table(rowData(x)))
+    rowDT <- rbindlist(rowDataL, fill=TRUE, use.names=TRUE, idcol='mDataType')
+    rowMetaDT <- rowDT[, lapply(.SD, 
+        function(x) paste0(unique(na.omit(x)), collapse='|')), by=rownames]
+    assayL <- lapply(assays(MAE), as.data.table, keep.rownames='.feature')
+    flatAssayL <- lapply(assayL, melt.data.table, id.vars='.feature', 
+        variable.name='.sample', value.factor='false', variable.factor=FALSE)
+    for (i in seq_along(flatAssayL)) setnames(flatAssayL[[i]], 'value', 
+        names(assayL)[i])
+    .merge_long_arrays <- function(x, y) 
+        merge.data.table(x, y, by=c('.sample', '.feature'), all=TRUE)
+    assayDT <- Reduce(.merge_long_arrays, flatAssayL)
+    setnames(rowMetaDT, 'rownames', '.feature')
+    setnames(colMetaDT, 'rownames', '.sample')
+    MAE_DT <- merge.data.table(assayDT, colMetaDT, by='.sample')
+    MAE_DT <- merge.data.table(MAE_DT, rowMetaDT, by='.feature')
+}

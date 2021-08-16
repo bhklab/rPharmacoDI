@@ -16,7 +16,7 @@ NULL
 #' @param ... `pairlist` Fall through arguments to all instances of 
 #'  `arrow::write_parquet`
 #'
-#' @import arrow
+#' @importFrom arrow write_parquet
 #' @import PharmacoGx
 #' @export
 setMethod("writeToParquet", signature(object="PharmacoSet"), function(object, filePath, ...) {
@@ -89,7 +89,7 @@ setMethod("writeToParquet", signature(object="PharmacoSet"), function(object, fi
 #' @param objectName [`character`] The name of the `CSet` object being written to disk
 #' @param ... `pairlist` Fall through arguments to `arrow::write_parquet`. 
 #'
-#' @import arrow
+#' @importFrom arrow write_parquet
 #' @export
 .writeMolecularProfilesToParquet <- function(SElist, filePath, objectName, ...) {
     sumExperDtList <- lapply(SElist, .convertSEToDataTableList)
@@ -120,6 +120,7 @@ setMethod("writeToParquet", signature(object="PharmacoSet"), function(object, fi
 #' @param sensSlot [`list`] PharmacoSet sensitivity slot, as returned by `sensitivitySlot`.
 #'
 #' @keywords internal
+#' @importFrom arrow write_parquet
 #' @export
 .writeSensitivityToParquet <- function(sensSlot, filePath, objectName, ...) {
     sensSlotDTs <- .sensSlotToDataTables(sensSlot)

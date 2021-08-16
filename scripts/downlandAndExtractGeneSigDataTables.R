@@ -12,7 +12,7 @@ outputDir <- '../PharmacoDI_snakemake_pipeline/rawdata/gene_signatures'
 BP <- bpparam()
 bpprogressbar(BP) <- TRUE
 register(BP)
-readSigToDT <- function(file) convertGeneSignatureToDT(readRDS(file))
+readSigToDT <- function(file) convertGeneSignatureToDT(readGeneSig(file))
 setDTthreads(14)
 
 # Move the files with rsync, use this when we get new signatures
@@ -23,7 +23,7 @@ setDTthreads(14)
 # -- 1.1 Analytic results
 
 rna_analytic_files <- list.files(file.path(inputDir, 'rna', 'rnaAnalytic'), 
-    pattern='.*rds', recursive=TRUE, full.names=TRUE)
+    pattern='.*rds$|.*qs$', recursive=TRUE, full.names=TRUE)
 rna_analytic_dt <- rbindlist(bplapply(rna_analytic_files, readSigToDT))
 
 # Extract tissues to fix the permutation table
@@ -32,9 +32,9 @@ rna_analytic_tissues <- unique(rna_analytic_dt$tissue)
 # -- 1.2 Permutation results
 
 rna_perm_files <- list.files(file.path(inputDir, 'rna', 'rnaPermutation'), 
-    pattern='.*rds', recursive=TRUE, full.names=TRUE)
+    pattern='.*rds$|.*qs$', recursive=TRUE, full.names=TRUE)
 rna_perm_list <- bplapply(rna_perm_files, readSigToDT)
-rna_perm_tissue <- gsub('^.*_|.rds$', '', basename(rna_perm_files))
+rna_perm_tissue <- gsub('^.*_|.rds$|.qs$', '', basename(rna_perm_files))
 # reconstruct tissues from file names
 for (i in seq_along(rna_perm_list)) {
     rna_perm_list[[i]][, tissue := rna_perm_tissue[i]]
@@ -57,14 +57,35 @@ if (all(rna_perm_dt$tissue %in% rna_analytic_tissues)) {
 }
 
 # 1.4 -- Join the tables, adding the appropriate suffixes
-key_columns <- c('gene', 'compound', 'tissue', 'dataset', 'mDataType', 'n', 'df')
+key_columns <- c('gene', 'compound', 'tissue', 'dataset', 'mDataType')
 setkeyv(rna_analytic_dt, key_columns)
 setkeyv(rna_perm_dt, key_columns)
 rna_dt <- merge.data.table(rna_analytic_dt, rna_perm_dt, 
     suffixes=c('_analytic', '_permutation'), all=TRUE)
 
+# Sanity check sample sizes
+rna_different_n <- rna_dt[
+    !is.na(n_analytic) & !is.na(n_permutation) & n_analytic != n_permutation, 
+    .(gene, compound, tissue, dataset, mDataType, n_analytic, n_permutation)
+    ]
+if (nrow(rna_different_n) > 1) {
+    warning('Sample sizes differ between analytic and permutation methods for RNA!')
+    fwrite(rna_different_n, 'logs/rna_gene_sig_different_n.csv')
+}
+
+rna_dt[, c('n', 'df', 'estimate') := .(n_permutation, df_permutation, estimate_permutation)]
+rna_dt[is.na(estimate), c('n', 'df', 'estimate') := .(n_analytic, df_analytic, estimate_analytic)]
+
 # Fix CTRPv2 since it is a hybrid dataset
 rna_dt[dataset == 'CCLE.CTRPv2', dataset := 'CTRPv2']
+
+# Drop rows with NA estimates
+rna_dt <- rna_dt[!is.na(estimate), ]
+rna_dt[, 
+    c('estimate_analytic', 'n_analytic', 'df_analytic', 
+        'significant_analytic') := NULL]
+rna_dt[, c('estimate_permutation', 'n_permutation', 'df_permutation') := NULL]
+
 
 # Clean up so we have memory for the next table
 rm(rna_perm_dt, rna_analytic_dt); gc(verbose=TRUE)
@@ -75,7 +96,7 @@ rm(rna_perm_dt, rna_analytic_dt); gc(verbose=TRUE)
 # -- 2.1 Analytic results
 
 cnv_analytic_files <- list.files(file.path(inputDir, 'cnv', 'cnvAnalytic'), 
-    pattern='.*rds', recursive=TRUE, full.names=TRUE)
+    pattern='.*rds|.*qs', recursive=TRUE, full.names=TRUE)
 cnv_analytic_dt <- rbindlist(bplapply(cnv_analytic_files, readSigToDT))
 
 # Extract tissues to fix the permutation table
@@ -83,9 +104,9 @@ cnv_analytic_tissues <- unique(cnv_analytic_dt$tissue)
 
 # ---- 2.2 Permutation results
 cnv_perm_files <- list.files(file.path(inputDir, 'cnv', 'cnvPermutation', 
-    'pearson_perm_res'), pattern='.*rds', recursive=TRUE, full.names=TRUE)
-cnv_perm_tissue <- gsub('^.*_|.rds$', '', basename(cnv_perm_files))
-cnv_perm_list <- bplapply(cnv_perm_files, readSigToDT) 
+    'pearson_perm_res'), pattern='.*rds$|.qs$', recursive=TRUE, full.names=TRUE)
+cnv_perm_tissue <- gsub('^.*_|.rds$|.qs$', '', basename(cnv_perm_files))
+cnv_perm_list <- bplapply(cnv_perm_files, readSigToDT)
 # reconstruct tissues from file names
 for (i in seq_along(cnv_perm_list)) {
     cnv_perm_list[[i]][, tissue := cnv_perm_tissue[i]]
@@ -102,15 +123,36 @@ cnv_fcase_args <- unlist(
 cnv_perm_dt[, tissue := do.call('fcase', args=cnv_fcase_args)]
 
 # -- 2.4 Join the tables, adding the appropriate suffixes
-key_columns <- c('gene', 'compound', 'tissue', 'dataset', 'mDataType', 'n', 'df')
+key_columns <- c('gene', 'compound', 'tissue', 'dataset', 'mDataType')
 setkeyv(cnv_analytic_dt, key_columns)
 setkeyv(cnv_perm_dt, key_columns)
 cnv_dt <- merge.data.table(cnv_analytic_dt, cnv_perm_dt, 
     suffixes=c('_analytic', '_permutation'), all=TRUE)
 
+# Sanity check sample sizes
+cnv_different_n <- cnv_dt[
+    !is.na(n_analytic) & !is.na(n_permutation) & n_analytic != n_permutation, 
+    .(gene, compound, tissue, dataset, mDataType, n_analytic, n_permutation)
+    ]
+if (nrow(cnv_different_n) > 1) {
+    warning('Sample sizes differ between analytic and permutation methods for CNV!')
+    fwrite(cnv_different_n, 'logs/cnv_gene_sig_different_n.csv')
+}
+
+cnv_dt[, c('n', 'df', 'estimate') := .(n_permutation, df_permutation, estimate_permutation)]
+cnv_dt[is.na(estimate), c('n', 'df', 'estimate') := .(n_analytic, df_analytic, estimate_analytic)]
+
 # Fix CTRPv2 since it is a hybrid dataset
 cnv_dt[dataset == 'CCLE.CTRPv2', dataset := 'CTRPv2']
 
+# Drop rows with NA estimates
+cnv_dt <- cn_dt[!is.na(estimate), ]
+cnv_dt[, 
+    c('estimate_analytic', 'n_analytic', 'df_analytic', 
+        'significant_analytic') := NULL]
+cnv_dt[, c('estimate_permutation', 'n_permutation', 'df_permutation') := NULL]
+
+# Clean up memory usage
 rm(cnv_perm_dt, cnv_analytic_dt); gc(verbose=TRUE)
 
 # ---- 3. Merge RNA and CNV results and split by dataset 
@@ -124,7 +166,11 @@ for (ds in unique(gene_compound_tissue_dataset$dataset)) {
         sink=file.path(outputDir, paste0(ds, '_gene_sig.parquet')))
 }
 
+rm(gene_compound_tissue_dataset); gc(v=T)
+
 # ---- 3. Pancancer Results
+
+## FIXME:: Sanity checks for the PanCan files?
 
 # -- 3.1 RNA pancancer
 rna_pancan_files <- list.files(file.path(inputDir, 'rna', 'rnaAnalyticPancan'),

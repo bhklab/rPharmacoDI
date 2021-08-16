@@ -23,6 +23,7 @@ Suggests:
     RadioGx
 RoxygenNote: 7.1.1
 Collate: 
+    'coerce-methods.R'
     'convertGeneSignatureToDT.R'
     'convertMetaAnalysisToDT.R'
     'geneAnnotationToCSV.R'

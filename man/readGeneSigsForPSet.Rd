@@ -2,7 +2,9 @@
 % Please edit documentation in R/convertGeneSignatureToDT.R
 \name{readGeneSigsForPSet}
 \alias{readGeneSigsForPSet}
-\title{Takes in the path to a set of gene signature .rds files, selects those pathing `pSetPattern` and converts them}
+\title{Takes in the path to a set of gene signature .rds files, selects those 
+  path matching `pSetPattern` and converts them into a list of PharmacoSig
+  objects.}
 \usage{
 readGeneSigsForPSet(
   dataDir,
@@ -18,14 +20,18 @@ readGeneSigsForPSet(
 pSet indentifier (e.g., GDSC_v1). '.*' is automatically prepended and appended to the pattern, so adding
 this is not necssary.}
 
-\item{mDataTypes}{[`character`] directory names for each molecular datatype to read gene signatures for.}
+\item{mDataTypes}{[`character`] directory names for each molecular datatype 
+to read gene signatures for.}
 
-\item{BPPARAM}{[`BiocParam`] object specifying what backend to use for parallelization. This defaults to your
-registered back-end, retrieved via the `bpparam()` function.}
+\item{BPPARAM}{[`BiocParam`] object specifying what backend to use for 
+parallelization. This defaults to your registered back-end, retrieved via 
+the `BiocParallel::bpparam()` function.}
 }
 \value{
 [`list`] of `PharmacoSig` objects for the selected pSet
 }
 \description{
-Takes in the path to a set of gene signature .rds files, selects those pathing `pSetPattern` and converts them
+Takes in the path to a set of gene signature .rds files, selects those 
+  path matching `pSetPattern` and converts them into a list of PharmacoSig
+  objects.
 }
