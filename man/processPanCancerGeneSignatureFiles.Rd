@@ -7,7 +7,8 @@
 processPanCancerGeneSignatureFiles(
   filePath,
   mDataType = c("rna", "cnv", "mutation"),
-  fileFormats = c("rds")
+  ...,
+  fileFormats = c("rds", "qs")
 )
 }
 \arguments{
@@ -15,6 +16,11 @@ processPanCancerGeneSignatureFiles(
 should contain a folder `mDataType`.}
 
 \item{mDataType}{`character(1)` The molecular data type of the signatures.}
+
+\item{...}{Fall through arguments to [`BiocParllel::bplapply`].}
+
+\item{fileFormats}{`character` File formats to search in `filePath` for,
+the dot should be excluded (e.g., rds not .rds, etc)}
 }
 \value{
 `data.table` The gene signatures properly formatted to a single 

@@ -6,7 +6,7 @@ library(BiocParallel)
 library(MultiAssayExperiment)
 
 # -- Configuration
-nthread <- 12
+nthread <- 14
 filePath <- '../PharmacoDI_snakemake_pipeline/rawdata'
 
 # data.table config

@@ -36,10 +36,10 @@ processGeneSignatureFiles <- function(
         pattern=format_regex_pattern,
         recursive=TRUE,
         full.names=TRUE)
+    message("Binding signatures into a data.table")
     analytic_dt <- rbindlist(
         bplapply(analytic_signature_files, readSigToDT, ...),
         use.names=TRUE)
-    print(colnames(analytic_dt))
 
     ## FIXME:: (A) Remove this workaround for fixing permutation tissue
     # extract tissues to fix permutation table
@@ -176,15 +176,17 @@ readSigToDT <- function(filePath) convertGeneSignatureToDT(readGeneSig(filePath)
 #' @param filePath `character(1)` Path to top level signature directory. This
 #'   should contain a folder `mDataType`.
 #' @param mDataType `character(1)` The molecular data type of the signatures.
+#' @param ... Fall through arguments to [`BiocParllel::bplapply`].
+#' @param fileFormats `character` File formats to search in `filePath` for,
+#'   the dot should be excluded (e.g., rds not .rds, etc)
 #'
 #' @return `data.table` The gene signatures properly formatted to a single 
 #'   long format table.
 #' 
-#'
 #' @importFrom data.table data.table rbindlist
 #' @export
 processPanCancerGeneSignatureFiles <- function(filePath,
-    mDataType=c('rna', 'cnv', 'mutation'), fileFormats=c('rds')) 
+    mDataType=c('rna', 'cnv', 'mutation'), ..., fileFormats=c('rds', 'qs')) 
 {
     mDataType <- match.arg(mDataType)
     pancan_files <- list.files(
@@ -192,7 +194,10 @@ processPanCancerGeneSignatureFiles <- function(filePath,
         pattern=paste0('.', fileFormats, '$', collapse='|'),
         recursive=TRUE,
         full.names=TRUE)
-    pancan_dt <- rbindlist(pancan_files, use.names=TRUE, fill=TRUE)
+
+    pancan_dt <- rbindlist(
+        bplapply(pancan_files, readSigToDT, ...), 
+        use.names=TRUE, fill=TRUE)
     pancan_dt[gene %like% '^ENS', gene := gsub('\\..*$', '', gene)]
     pancan_dt[dataset == 'CCLE.CTRPv2', dataset := 'CTRPv2']
     return(pancan_dt)

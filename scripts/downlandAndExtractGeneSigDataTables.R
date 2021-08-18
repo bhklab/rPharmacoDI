@@ -22,26 +22,28 @@ setDTthreads(14)
 # ---- 1. Parse full signatures
 mDataTypes <- c('rna', 'cnv', 'mutation')
 for (i in seq_along(mDataTypes)) {
-    dt <- processGeneSignatureFiles(inputDir, mDataType)
+    dt <- processGeneSignatureFiles(inputDir, mDataTypes[i])
     if (i == 1) {
         fwrite(dt, file=file.path(outputDir, 
             'gene_compound_tissue_dataset.csv'))
     } else {
-        fwrite(dt, file=file.path(outputDir, 
-            'gene_compound_tissue_dataset.csv'), append=TRUE)
+        fwrite(dt, 
+            file=file.path(outputDir, 'gene_compound_tissue_dataset.csv'), 
+            append=TRUE)
     }
     rm(dt); gc()
 }
 
 # ---- 2. Pancancer Results
 
-for (i in seq_along(mDataType)) {
-    dt <- processPanCancerGeneSignatureFiles(inputDir, mDataType)
+for (i in seq_along(mDataTypes)) {
+    dt <- processPanCancerGeneSignatureFiles(inputDir, mDataTypes[i])
     if (i == 1) {
         fwrite(dt, file='gene_compound_tissue_dataset.csv')
     } else {
         fwrite(dt, file='gene_compound_tissue_dataset.csv', append=TRUE)
     }
+    rm(dt); gc()
 }
 
 # Remove signature files to save space
