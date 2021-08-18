@@ -65,14 +65,11 @@ setMethod('stripEnsemblVersion', signature(object='PharmacoSet'),
 })
 
 
-
-
-
 #' Regex off Ensembl identifier version numbers
 #' 
 #' @description 
-#' Converts Ensembl identifiers from 'ENS*.XX' to 'ENS*', where 'XX' is any two
-#' digit version number and '*' is the rest of the identifier text.
+#' Converts Ensembl identifiers from 'ENS*.XX' to 'ENS*', where 'XX' is any
+#' version number and '*' is the rest of the identifier text.
 #' 
 #' @param x `character()` vector of Ensembl gene identifiers
 #'   to remove the version numbers from.
@@ -81,12 +78,11 @@ setMethod('stripEnsemblVersion', signature(object='PharmacoSet'),
 #'   numbers removed.
 #' 
 #' @details
-#' Specific regex pattern removed is '\\.[0-9]*$', so it will technically
-#' remove more than two numbers. Only does regex for string matcing 'ENS.*'.
+#' Specific regex pattern removed is '\\..*$'.
 #' 
 #' @md
 .removeEnsemblVersion <- function(x) {
     isMatch <- grepl('ENS.*', x)
-    x[isMatch] <- gsub('\\.[0-9]*$', '', x[isMatch])
+    x[isMatch] <- gsub('\\..*$', '', x[isMatch])
     x
 }

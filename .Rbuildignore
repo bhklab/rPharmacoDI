@@ -7,3 +7,5 @@ data/rawdata/*
 R/.deprecated.R
 .*qs
 tmp.qs
+logs
+logs/*

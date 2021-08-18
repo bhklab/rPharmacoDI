@@ -29,6 +29,7 @@ Collate:
     'geneAnnotationToCSV.R'
     'generics.R'
     'getPSetGeneSigs.R'
+    'processGeneSignatureFiles.R'
     'removeNonASCII.R'
     'stripEnsemblVersions.R'
     'writeToCsv-methods.R'

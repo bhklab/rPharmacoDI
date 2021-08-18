@@ -7,11 +7,16 @@
 #'   OR [`NULL`] if you specify `saveDir` and `fileName`, in which case the 
 #'   file is saved to disk instead of returned.
 #'
-#' @import data.table
+#' @importFrom data.table data.table as.data.table
 #' @import PharmacoGx
 #' @export
 convertGeneSignatureToDT <- function(geneSig) {
-    geneSigDT <- data.table(geneSig@.Data[, , ], keep.rownames='gene')
+    if (nrow(geneSig@.Data) > 1) {
+        geneSigDT <- data.table(geneSig@.Data[, , ], keep.rownames='gene')
+    } else {
+        geneSigDT <- as.data.table(as.list(geneSig@.Data[, , ]))
+        geneSigDT$gene <- rownames(geneSig@.Data)
+    }
     geneSigDT$dataset <- rep(geneSig@PSetName, nrow(geneSigDT))
     geneSigDT$compound <- geneSig@Arguments$drugs
     geneSigDT$mDataType <- geneSig@Arguments$mDataType
@@ -19,7 +24,6 @@ convertGeneSignatureToDT <- function(geneSig) {
     geneSigDT$tissue <- if (length(tissues) == 1) tissues else NA_character_
     return(geneSigDT)
 }
-
 
 
 #' Takes in the path to a set of gene signature .rds files, selects those 
@@ -75,7 +79,7 @@ readGeneSigsForPSet <- function(dataDir, pSetPattern, mDataTypes,
 readGeneSig <- function(path, reader=NA) {
     if (!is.na(reader)) return(reader(path))
     if (grepl('.rds$', path)) readRDS(path, reader)
-    else if (grel('.qs$', path)) qread(path)
+    else if (grepl('.qs$', path)) qread(path)
     else .error("[rPharmacoDI::readGeneSig] Unsupported file format in path!")
 }
 

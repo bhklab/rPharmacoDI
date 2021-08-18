@@ -15,10 +15,9 @@ to remove the version numbers from.}
 numbers removed.
 }
 \description{
-Converts Ensembl identifiers from 'ENS*.XX' to 'ENS*', where 'XX' is any two
-digit version number and '*' is the rest of the identifier text.
+Converts Ensembl identifiers from 'ENS*.XX' to 'ENS*', where 'XX' is any
+version number and '*' is the rest of the identifier text.
 }
 \details{
-Specific regex pattern removed is '\\.\link{0-9}\emph{$', so it will technically
-remove more than two numbers. Only does regex for string matcing 'ENS.}'.
+Specific regex pattern removed is '\\..*$'.
 }
