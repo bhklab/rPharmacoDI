@@ -37,7 +37,8 @@ processGeneSignatureFiles <- function(
         recursive=TRUE,
         full.names=TRUE)
     analytic_dt <- rbindlist(
-        bplapply(analytic_signature_files, readSigToDT, ...))
+        bplapply(analytic_signature_files, readSigToDT, ...),
+        use.names=TRUE)
     print(colnames(analytic_dt))
 
     ## FIXME:: (A) Remove this workaround for fixing permutation tissue
@@ -52,7 +53,7 @@ processGeneSignatureFiles <- function(
         recursive=TRUE,
         full.names=TRUE)
     analytic_only <- FALSE
-    if (length(permutation_signature_files) > 1) analytic_only <- TRUE
+    if (length(permutation_signature_files) < 1) analytic_only <- TRUE
     if (!analytic_only) {
         permutation_list <- bplapply(permutation_signature_files, FUN=readSigToDT,
             ...)
@@ -63,7 +64,7 @@ processGeneSignatureFiles <- function(
         for (i in seq_along(permutation_list)) {
             permutation_list[[i]][, tissue := permutation_tissue[i]]
         }
-        permutation_dt <- rbindlist(permutation_list, use.names=TRUE, fill=TRUE)
+        permutation_dt <- rbindlist(permutation_list, use.names=TRUE)
         rm(permutation_list); gc()
 
         ## -- Merge formatting
