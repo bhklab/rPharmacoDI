@@ -101,7 +101,7 @@ processGeneSignatureFiles <- function(
             new=paste0(non_key_columns, '_analytic'))
         permutation_columns <- paste0(non_key_columns, '_permutation')
         for (column in permutation_columns)
-            set(signature_dt, j=column, NA_real_)
+            set(signature_dt, j=column, value=NA_real_)
     }
 
     # Sanity check samples sizes
