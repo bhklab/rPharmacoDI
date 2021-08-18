@@ -28,7 +28,7 @@ processGeneSignatureFiles <- function(
     mDataType <- match.arg(mDataType)
     format_regex_pattern <- paste0('^.*_|', paste0('.', fileFormats, '$', 
         collapse='|'))
-    
+
     ## -- Analytic signatures
     message('Reading analytic gene signatures')
     analytic_signature_files <- list.files(

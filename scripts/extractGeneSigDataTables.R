@@ -24,10 +24,11 @@ mDataTypes <- c('rna', 'cnv', 'mutation')
 for (i in seq_along(mDataTypes)) {
     dt <- processGeneSignatureFiles(inputDir, mDataTypes[i])
     if (i == 1) {
+        cols = dt.names
         fwrite(dt, file=file.path(outputDir, 
             'gene_compound_tissue_dataset.csv'))
     } else {
-        fwrite(dt, 
+        fwrite(dt[cols], 
             file=file.path(outputDir, 'gene_compound_tissue_dataset.csv'), 
             append=TRUE)
     }
