@@ -153,7 +153,7 @@ processGeneSignatureFiles <- function(
 
     # Remove ensembl gene ids
     message('Removing Ensembl gene id versions')
-    signature_dt[gene %like% '^ENS', gene := gsub(gene, '\\..*$')]
+    signature_dt[gene %like% '^ENS', gene := gsub('\\..*$', '', gene)]
 
     # Fix CTRPv2 naming
     signature_dt[dataset == 'CCLE.CTRPv2', dataset := 'CTRPv2']
