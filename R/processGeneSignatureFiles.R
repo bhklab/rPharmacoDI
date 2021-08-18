@@ -193,7 +193,7 @@ processPanCancerGeneSignatureFiles <- function(filePath,
         recursive=TRUE,
         full.names=TRUE)
     pancan_dt <- rbindlist(pancan_files, use.names=TRUE, fill=TRUE)
-    pancan_dt[, gene := .removeEnsemblVersion(gene)]
+    pancan_dt[gene %like% '^ENS', gene := gsub('\\..*$', '', gene)]
     pancan_dt[dataset == 'CCLE.CTRPv2', dataset := 'CTRPv2']
     return(pancan_dt)
 }
