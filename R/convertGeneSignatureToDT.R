@@ -74,7 +74,7 @@ readGeneSigsForPSet <- function(dataDir, pSetPattern, mDataTypes,
 #'   string.
 #'
 #'
-#'
+#' @importFrom qs qread
 #' @export
 readGeneSig <- function(path, reader=NA) {
     if (!is.na(reader)) return(reader(path))
