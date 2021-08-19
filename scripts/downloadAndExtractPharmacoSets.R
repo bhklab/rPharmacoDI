@@ -31,9 +31,12 @@ if (!all(bpok(canonicalPSets))) {
 
 # -- Preprocess the PSets to use the correct molecular identifiers
 procCanonicalPSets <- bplapply(canonicalPSets, FUN=stripEnsemblVersion)
+names(procCanonicalPSets) <- pSetNames
 
-## FIXME:: Remove non-UTF byte from drug metadata brand name drugs[4, 3]
+## FIXME:: Remove non-UTF byte CCLE from drug metadata brand name drugs[4, 2]
 ##>this breaks the Snakemake pipeline everytime
+drugInfo(procCanonicalPSets[["CCLE_2015"]]) <- removeNonASCII(
+        drugInfo(procCanonicalPSets[["CCLE_2015"]]))
 
 # -- Extract into filePath
 # This is technically bad practice, because I am using a functional looping construct
