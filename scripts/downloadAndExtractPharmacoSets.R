@@ -4,9 +4,10 @@ library(PharmacoGx)
 library(data.table)
 library(BiocParallel)
 library(MultiAssayExperiment)
+library(qs)
 
 # -- Configuration
-nthread <- 14
+nthread <- 12
 filePath <- '../PharmacoDI_snakemake_pipeline/rawdata'
 
 # data.table config
@@ -21,16 +22,28 @@ register(bp)
 # -- Download the PSets
 canonicalPSetDF <- PharmacoGx::availablePSets()
 pSetNames <- canonicalPSetDF$`PSet Name`
-canonicalPSets <- bptry(bplapply(pSetNames, FUN=downloadPSet, saveDir=filePath, 
+if (!file.exists(file.path('local_data', 'canonicalPSets.qs'))) {
+    canonicalPSets <- bptry(bplapply(pSetNames, FUN=downloadPSet, saveDir=filePath, 
     timeout=1e10))
-if (!all(bpok(canonicalPSets))) {
-    canonicalPSets <- btry(bplapply(canonicalPSetDF$`PSet Name`, FUN=downloadPSet, 
-        saveDir=filePath, BPREDO=canonicalPSets, timeout=1e20))
+    # canonicalPSets <- vector('list', length(pSetNames))
+    # for (i in seq_along(pSetNames)) {
+    #     canonicalPSets[[i]] <- downloadPSet(pSetNames[i], saveDir=filePath, 
+    #         timeout=1e10)
+    # }
+    if (!all(bpok(canonicalPSets))) {
+    canonicalPSets <- btry(bplapply(canonicalPSetDF$`PSet Name`, 
+        FUN=downloadPSet, saveDir=filePath, BPREDO=canonicalPSets, 
+        timeout=1e20))
     if (!all(bpok(canonicalPSets))) stop("Downloading PSets failed!")
+}
+} else {
+    canonicalPSets <- qread(file.path('local_data', 'canonicalPSets.qs'),
+        nthread=nthread)
 }
 
 # -- Preprocess the PSets to use the correct molecular identifiers
 procCanonicalPSets <- bplapply(canonicalPSets, FUN=stripEnsemblVersion)
+rm(canonicalPSets); gc()
 names(procCanonicalPSets) <- pSetNames
 
 ## FIXME:: Remove non-UTF byte CCLE from drug metadata brand name drugs[4, 2]
@@ -38,36 +51,66 @@ names(procCanonicalPSets) <- pSetNames
 drugInfo(procCanonicalPSets[["CCLE_2015"]]) <- removeNonASCII(
         drugInfo(procCanonicalPSets[["CCLE_2015"]]))
 
+## FIXME:: Correct name for NCI60
+name(procCanonicalPSets[['NCI60_2021']]) <- 'NCI60'
+
+## FIXME:: Correct cell and tissue name in cell slot
+PRISM <- procCanonicalPSets[['PRISM_2020']]
+cellInfo(PRISM)[['cellid']] <- gsub(
+    'RH30_SOFT_TISSUE',
+    'Rh30',
+    cellInfo(procCanonicalPSets[['PRISM_2020']])[['cellid']]
+)
+cellInfo(PRISM)[
+    grepl('Rh30', cellInfo(PRISM)[['cellid']]), 
+    'tissueid'
+] <- 'Soft Tissue'
+rownames(cellInfo(PRISM)) <- cellInfo(PRISM)[['cellid']]
+# Fix the name
+name(PRISM) <- 'PRISM'
+# Fix cellid and tissueid in sensitivity slot
+sensitivityInfo(PRISM)[['cellid']] <- gsub(
+    'RH30_SOFT_TISSUE',
+    'Rh30',
+    sensitivityInfo(PRISM)[['cellid']]
+)
+sensitivityInfo(PRISM)[
+    grepl('Rh30', sensitivityInfo(PRISM)[['cellid']]),
+    'tissueid'
+] <- 'Soft Tissue'
+rownames(sensNumber(PRISM)) <- gsub(
+    'RH30_SOFT_TISSUE',
+    'Rh30',
+    rownames(sensNumber(PRISM))
+)
+# Fix curation
+curation(PRISM)[['unique.cellid']] <- gsub(
+    'RH30_SOFT_TISSUE',
+    'Rh30',
+    curation(PRISM)[['unique.cellid']]
+)
+rownames(curation(PRISM)$cell) <- curation(PRISM)$cell[['unique.cellid']]
+# Fix tissue
+rownames(curation(PRISM)$tissue) <- gsub(
+    'RH30_SOFT_TISSUE',
+    'Rh30',
+    rownames(curation(PRISM)$tissue)
+)
+curation(PRISM)$tissue[
+    grepl('Rh30', rownames(curation(PRISM)$tissue)),
+    'unique.tissueid'
+] <- 'Soft Tissue'
+procCanonicalPSets[['PRISM_2020']] <- PRISM
+
 # -- Extract into filePath
-# This is technically bad practice, because I am using a functional looping construct
-#   for it's side effects only. But it is the easiest way to parallelize this.
-# TODO:: Does this break our RAM usage? No put it peaks around 80 GB, so it will break
-#   if we ever lower this VMs RAM below that. Can I check that from R?
+# This is technically bad practice, because I am using a functional looping 
+#   construct for it's side effects only. But it is the easiest way to 
+#   parallelize this.
+# NOTE:: Peaks at ~55 GB RAM usage on 12 threads
 bplapply(procCanonicalPSets, FUN=writeToParquet, filePath=filePath)
 
 
 ## ---- Testing
 if (sys.nframe() == 0) {
-    object <- readRDS('rawdata/GDSC_2020(v1-8.2).rds')
-    MAE <- MultiAssayExperiment(molecularProfilesSlot(object))
-    colDataL <- lapply(experiments(MAE), function(x) as.data.table(colData(x)))
-    colDT <- rbindlist(colDataL, fill=TRUE, use.names=TRUE, idcol='mDataType')
-    colMetaDT <- colDT[, lapply(.SD, 
-        function(x) paste0(unique(na.omit(x)), collapse='|')), by=rownames]
-    rowDataL <- lapply(experiments(MAE), function(x) as.data.table(rowData(x)))
-    rowDT <- rbindlist(rowDataL, fill=TRUE, use.names=TRUE, idcol='mDataType')
-    rowMetaDT <- rowDT[, lapply(.SD, 
-        function(x) paste0(unique(na.omit(x)), collapse='|')), by=rownames]
-    assayL <- lapply(assays(MAE), as.data.table, keep.rownames='.feature')
-    flatAssayL <- lapply(assayL, melt.data.table, id.vars='.feature', 
-        variable.name='.sample', value.factor='false', variable.factor=FALSE)
-    for (i in seq_along(flatAssayL)) setnames(flatAssayL[[i]], 'value', 
-        names(assayL)[i])
-    .merge_long_arrays <- function(x, y) 
-        merge.data.table(x, y, by=c('.sample', '.feature'), all=TRUE)
-    assayDT <- Reduce(.merge_long_arrays, flatAssayL)
-    setnames(rowMetaDT, 'rownames', '.feature')
-    setnames(colMetaDT, 'rownames', '.sample')
-    MAE_DT <- merge.data.table(assayDT, colMetaDT, by='.sample')
-    MAE_DT <- merge.data.table(MAE_DT, rowMetaDT, by='.feature')
+
 }
