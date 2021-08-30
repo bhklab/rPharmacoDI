@@ -1,4 +1,4 @@
-#' Read gene signature files for many experiments and merge them to a 
+ ..d#' Read gene signature files for many experiments and merge them to a 
 #'   `data.table`
 #'
 #' @param filePath `character(1)` Path to top level signature directory. This
@@ -23,8 +23,8 @@ processGeneSignatureFiles <- function(
     ...,
     keyColumns=c('gene', 'compound', 'tissue', 'dataset', 'mDataType'),
     fileFormats=c('rds', 'qs'),
-    logDir='logs')
-{
+    logDir='logs'
+){
     mDataType <- match.arg(mDataType)
     format_regex_pattern <- paste0('^.*_|', paste0('.', fileFormats, '$', 
         collapse='|'))

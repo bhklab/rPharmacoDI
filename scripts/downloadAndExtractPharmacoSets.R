@@ -24,18 +24,17 @@ canonicalPSetDF <- PharmacoGx::availablePSets()
 pSetNames <- canonicalPSetDF$`PSet Name`
 if (!file.exists(file.path('local_data', 'canonicalPSets.qs'))) {
     canonicalPSets <- bptry(bplapply(pSetNames, FUN=downloadPSet, saveDir=filePath, 
-    timeout=1e10))
-    # canonicalPSets <- vector('list', length(pSetNames))
+        timeout=1e10))
+    canonicalPSets <- vector('list', length(pSetNames))
     # for (i in seq_along(pSetNames)) {
     #     canonicalPSets[[i]] <- downloadPSet(pSetNames[i], saveDir=filePath, 
     #         timeout=1e10)
     # }
-    if (!all(bpok(canonicalPSets))) {
-    canonicalPSets <- btry(bplapply(canonicalPSetDF$`PSet Name`, 
-        FUN=downloadPSet, saveDir=filePath, BPREDO=canonicalPSets, 
-        timeout=1e20))
+    if (!all(bpok(canonicalPSets)))
+        canonicalPSets <- btry(bplapply(canonicalPSetDF$`PSet Name`, 
+            FUN=downloadPSet, saveDir=filePath, BPREDO=canonicalPSets, 
+            timeout=1e20))
     if (!all(bpok(canonicalPSets))) stop("Downloading PSets failed!")
-}
 } else {
     canonicalPSets <- qread(file.path('local_data', 'canonicalPSets.qs'),
         nthread=nthread)
@@ -51,56 +50,6 @@ names(procCanonicalPSets) <- pSetNames
 drugInfo(procCanonicalPSets[["CCLE_2015"]]) <- removeNonASCII(
         drugInfo(procCanonicalPSets[["CCLE_2015"]]))
 
-## FIXME:: Correct name for NCI60
-name(procCanonicalPSets[['NCI60_2021']]) <- 'NCI60'
-
-## FIXME:: Correct cell and tissue name in cell slot
-PRISM <- procCanonicalPSets[['PRISM_2020']]
-cellInfo(PRISM)[['cellid']] <- gsub(
-    'RH30_SOFT_TISSUE',
-    'Rh30',
-    cellInfo(procCanonicalPSets[['PRISM_2020']])[['cellid']]
-)
-cellInfo(PRISM)[
-    grepl('Rh30', cellInfo(PRISM)[['cellid']]), 
-    'tissueid'
-] <- 'Soft Tissue'
-rownames(cellInfo(PRISM)) <- cellInfo(PRISM)[['cellid']]
-# Fix the name
-name(PRISM) <- 'PRISM'
-# Fix cellid and tissueid in sensitivity slot
-sensitivityInfo(PRISM)[['cellid']] <- gsub(
-    'RH30_SOFT_TISSUE',
-    'Rh30',
-    sensitivityInfo(PRISM)[['cellid']]
-)
-sensitivityInfo(PRISM)[
-    grepl('Rh30', sensitivityInfo(PRISM)[['cellid']]),
-    'tissueid'
-] <- 'Soft Tissue'
-rownames(sensNumber(PRISM)) <- gsub(
-    'RH30_SOFT_TISSUE',
-    'Rh30',
-    rownames(sensNumber(PRISM))
-)
-# Fix curation
-curation(PRISM)[['unique.cellid']] <- gsub(
-    'RH30_SOFT_TISSUE',
-    'Rh30',
-    curation(PRISM)[['unique.cellid']]
-)
-rownames(curation(PRISM)$cell) <- curation(PRISM)$cell[['unique.cellid']]
-# Fix tissue
-rownames(curation(PRISM)$tissue) <- gsub(
-    'RH30_SOFT_TISSUE',
-    'Rh30',
-    rownames(curation(PRISM)$tissue)
-)
-curation(PRISM)$tissue[
-    grepl('Rh30', rownames(curation(PRISM)$tissue)),
-    'unique.tissueid'
-] <- 'Soft Tissue'
-procCanonicalPSets[['PRISM_2020']] <- PRISM
 
 # -- Extract into filePath
 # This is technically bad practice, because I am using a functional looping 

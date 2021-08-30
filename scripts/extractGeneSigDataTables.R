@@ -20,6 +20,7 @@ mDataTypes <- c('rna', 'cnv', 'mutation')
 for (i in seq_along(mDataTypes)) {
     message(paste0("Merging signatures for ", mDataTypes[i]))
     dt <- processGeneSignatureFiles(inputDir, mDataTypes[i])
+    dt <- unique(dt)
     if (i == 1) {
         cols <- colnames(dt)
         fwrite(dt, file=file.path(outputDir, 
@@ -34,10 +35,11 @@ for (i in seq_along(mDataTypes)) {
 }
 
 
-# ---- 2. Parse pancancer gene signatures
+# ---- 2. Parse pan-cancer gene signatures
 for (i in seq_along(mDataTypes)) {
     message(paste0("Merging pancancer signatures for ", mDataTypes[i]))
     dt <- processPanCancerGeneSignatureFiles(inputDir, mDataTypes[i])
+    dt <- unique(dt)
     if (i == 1) {
         cols <- colnames(dt)
         fwrite(dt, file=file.path(outputDir, 'gene_compound_dataset.csv'))
