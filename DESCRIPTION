@@ -18,7 +18,9 @@ Imports:
     PharmacoGx,
     SummarizedExperiment,
     Biobase,
-    BiocParallel
+    BiocParallel,
+    arrow,
+    qs
 Suggests:
     RadioGx
 RoxygenNote: 7.2.0
