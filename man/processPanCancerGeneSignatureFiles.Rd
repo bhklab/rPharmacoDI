@@ -23,7 +23,7 @@ should contain a folder `mDataType`.}
 the dot should be excluded (e.g., rds not .rds, etc)}
 }
 \value{
-`data.table` The gene signatures properly formatted to a single 
+`data.table` The gene signatures properly formatted to a single
   long format table.
 }
 \description{

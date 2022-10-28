@@ -1,16 +1,16 @@
 Package: rPharmacoDI
 Type: Package
-Version: 0.0.2
-Date: 2021-06-18
+Version: 0.0.3
+Date: 2022-10-28
 Title: PharmacoDB Data Ingestion - functions for converting pSets to PharmacoDB database tables
 Description: The rPharmacoDI packages provides functions to exporting a pSet object to raw .csv files, which can then
     be read into Python for processing into the database tables used for seeding PharmacoDB. Additional utility function
     for downloading additional data needed for PharmacoDB table generation will be included, including to get any
     precomputed R objects to speed up table creation as well as any required metadata.
 Author@R: c(
-  person("Christopher", "Eeles", email="christopher.eeles@uhnresearch.ca", role=c("aut")),
-  person("Benjamin, "Haibe-Kains", email="benjamin.haibe.kains@utoronto.ca", role=c("aut", "cre"))
-  )
+    person("Christopher", "Eeles", email="christopher.eeles@uhnresearch.ca", role=c("aut")),
+    person("Benjamin, "Haibe-Kains", email="benjamin.haibe.kains@utoronto.ca", role=c("aut", "cre"))
+    )
 License: MIT + file LICENSE
 Depends: R (>= 4.0), PharmacoGx
 Imports:
@@ -21,8 +21,8 @@ Imports:
     BiocParallel
 Suggests:
     RadioGx
-RoxygenNote: 7.1.1
-Collate: 
+RoxygenNote: 7.2.0
+Collate:
     'coerce-methods.R'
     'convertGeneSignatureToDT.R'
     'convertMetaAnalysisToDT.R'
@@ -32,5 +32,6 @@ Collate:
     'processGeneSignatureFiles.R'
     'removeNonASCII.R'
     'stripEnsemblVersions.R'
+    'utils.R'
     'writeToCsv-methods.R'
     'writeToParquet-methods.R'

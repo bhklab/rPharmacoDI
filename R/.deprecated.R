@@ -80,7 +80,7 @@
 
 
 # ---- Implementation of `as` function for converting `SummarizedExperiment` objects to -----------
-# ---- a single long `data.table`; to0 much disk usage to be practical -----------------------------
+# ---- a single long `data.table`; too much disk usage to be practical -----------------------------
 
 #' Coerce a SummarizedExperiment object to a long data.table, retaining the data in all assays, rowData, colData
 #'

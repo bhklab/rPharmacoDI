@@ -2,7 +2,7 @@
 % Please edit documentation in R/processGeneSignatureFiles.R
 \name{processGeneSignatureFiles}
 \alias{processGeneSignatureFiles}
-\title{Read gene signature files for many experiments and merge them to a 
+\title{Read gene signature files for many experiments and merge them to a
   `data.table`}
 \usage{
 processGeneSignatureFiles(
@@ -26,14 +26,14 @@ parameters contral internal function parallelization.}
 \item{keyColumns}{`character` Vector of column names in the signature file
 to join on. For developer use, do no change.}
 
-\item{fileFormats}{`character` Vector of file formats without a dot 
+\item{fileFormats}{`character` Vector of file formats without a dot
 (e.g., rds)}
 }
 \value{
-`data.table` The gene signatures properly formatted to a single 
+`data.table` The gene signatures properly formatted to a single
   long format table.
 }
 \description{
-Read gene signature files for many experiments and merge them to a 
+Read gene signature files for many experiments and merge them to a
   `data.table`
 }

@@ -1,4 +1,4 @@
- ..d#' Read gene signature files for many experiments and merge them to a 
+#' Read gene signature files for many experiments and merge them to a
 #'   `data.table`
 #'
 #' @param filePath `character(1)` Path to top level signature directory. This
@@ -8,25 +8,25 @@
 #'   parameters contral internal function parallelization.
 #' @param keyColumns `character` Vector of column names in the signature file
 #'   to join on. For developer use, do no change.
-#' @param fileFormats `character` Vector of file formats without a dot 
+#' @param fileFormats `character` Vector of file formats without a dot
 #'   (e.g., rds)
-#' 
-#' @return `data.table` The gene signatures properly formatted to a single 
+#'
+#' @return `data.table` The gene signatures properly formatted to a single
 #'   long format table.
-#' 
+#'
 #' @importFrom data.table data.table rbindlist merge.data.table `:=`
 #' @importFrom BiocParallel bplapply bpparam
 #' @export
 processGeneSignatureFiles <- function(
     filePath,
-    mDataType=c('rna', 'cnv', 'mutation'), 
+    mDataType=c('rna', 'cnv', 'mutation'),
     ...,
     keyColumns=c('gene', 'compound', 'tissue', 'dataset', 'mDataType'),
     fileFormats=c('rds', 'qs'),
     logDir='logs'
 ){
     mDataType <- match.arg(mDataType)
-    format_regex_pattern <- paste0('^.*_|', paste0('.', fileFormats, '$', 
+    format_regex_pattern <- paste0('^.*_|', paste0('.', fileFormats, '$',
         collapse='|'))
 
     ## -- Analytic signatures
@@ -70,7 +70,7 @@ processGeneSignatureFiles <- function(
         ## -- Merge formatting
         message('Fixing permutation signature tissue column formatting')
         ## FIXME:: Same as (A)
-        tissue_match_exprs <- paste0('tissue %like% "', 
+        tissue_match_exprs <- paste0('tissue %like% "',
             make.names(analytic_tissues), '"')
         fcase_args <- unlist(
             Map(list, sapply(tissue_match_exprs, FUN=str2lang), analytic_tissues),
@@ -96,8 +96,8 @@ processGeneSignatureFiles <- function(
         rm(analytic_dt); gc()
         non_key_columns <- setdiff(colnames(signature_dt), keyColumns)
         setnames(
-            signature_dt, 
-            old=non_key_columns, 
+            signature_dt,
+            old=non_key_columns,
             new=paste0(non_key_columns, '_analytic'))
         permutation_columns <- paste0(non_key_columns, '_permutation')
         for (column in permutation_columns)
@@ -107,26 +107,26 @@ processGeneSignatureFiles <- function(
     # Sanity check samples sizes
     message('Performing sanity checks')
     different_sample_size <- signature_dt[
-        !is.na(n_analytic) & !is.na(n_permutation) & 
+        !is.na(n_analytic) & !is.na(n_permutation) &
             n_analytic != n_permutation,
         .(gene, compound, tissue, dataset, mDataType, n_analytic, n_permutation)
     ]
     if (nrow(different_sample_size) > 1) {
-        warning('Samples sizes different between analytic and permutation 
+        warning('Samples sizes different between analytic and permutation
             results!')
         if (!dir.exists(logDir)) dir.create(logDir, recursive=TRUE)
-        fwrite(different_sample_size, 
+        fwrite(different_sample_size,
             file=file.path(logDir, paste0(mDataType, '_different_n.csv')))
     }
 
     message('Merging signature results')
-    signature_dt[, 
-        c('n', 'df', 'estimate') := .(n_permutation, df_permutation, 
+    signature_dt[,
+        c('n', 'df', 'estimate') := .(n_permutation, df_permutation,
             estimate_permutation)
         ]
     signature_dt[
-        is.na(estimate), 
-        c('n', 'df', 'estimate') := .(n_analytic, df_analytic, 
+        is.na(estimate),
+        c('n', 'df', 'estimate') := .(n_analytic, df_analytic,
             estimate_analytic)
         ]
 
@@ -135,7 +135,7 @@ processGeneSignatureFiles <- function(
         warning('NA estimates still in for both analytic and permuation!
             Dropping these rows!')
         na_estimate <- signature_dt[is.na(estimate), ]
-        fwrite(na_estimate, 
+        fwrite(na_estimate,
             file=file.path(logDir, paste0(mDataType, '_na_estimate.csv')))
         rm(na_estimate); gc()
         signature_dt <- signature_dt[!is.na(estimate), ]
@@ -146,7 +146,7 @@ processGeneSignatureFiles <- function(
     c('estimate_analytic', 'n_analytic', 'df_analytic',
         'significant_analytic') := NULL
         ]
-    signature_dt[, 
+    signature_dt[,
         c('estimate_permutation', 'n_permutation',
             'df_permutation') := NULL
         ]
@@ -180,13 +180,13 @@ readSigToDT <- function(filePath) convertGeneSignatureToDT(readGeneSig(filePath)
 #' @param fileFormats `character` File formats to search in `filePath` for,
 #'   the dot should be excluded (e.g., rds not .rds, etc)
 #'
-#' @return `data.table` The gene signatures properly formatted to a single 
+#' @return `data.table` The gene signatures properly formatted to a single
 #'   long format table.
-#' 
+#'
 #' @importFrom data.table data.table rbindlist
 #' @export
 processPanCancerGeneSignatureFiles <- function(filePath,
-    mDataType=c('rna', 'cnv', 'mutation'), ..., fileFormats=c('rds', 'qs')) 
+    mDataType=c('rna', 'cnv', 'mutation'), ..., fileFormats=c('rds', 'qs'))
 {
     mDataType <- match.arg(mDataType)
     pancan_files <- list.files(
@@ -196,7 +196,7 @@ processPanCancerGeneSignatureFiles <- function(filePath,
         full.names=TRUE)
 
     pancan_dt <- rbindlist(
-        bplapply(pancan_files, readSigToDT, ...), 
+        bplapply(pancan_files, readSigToDT, ...),
         use.names=TRUE, fill=TRUE)
     pancan_dt[gene %like% '^ENS', gene := gsub('\\..*$', '', gene)]
     pancan_dt[dataset == 'CCLE.CTRPv2', dataset := 'CTRPv2']

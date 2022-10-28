@@ -21,7 +21,7 @@
 
 \item{objectName}{`character(1)` The name of the PSet the annotations are from.}
 
-\item{sepChar}{`character(1)` Separator to use when pasting together 
+\item{sepChar}{`character(1)` Separator to use when pasting together
 multiple lines of a list item.}
 }
 \value{

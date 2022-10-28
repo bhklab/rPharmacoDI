@@ -54,9 +54,9 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
         fwrite(data.table(slotDF, keep.rownames='rownames') ,
             file=file.path(filePath, paste0(objectName, fileSuffix)), compress='gzip')
 
-    # -- drug
-    message("       --> Writing drug slot to disk\n")
-    .writeDFslotToCsv(slot(object, 'drug'), filePath, objectName, '@drug.csv.gz')
+    # -- treatment
+    message("       --> Writing treatment slot to disk\n")
+    .writeDFslotToCsv(treatmentInfo(object), filePath, objectName, '@treatment.csv.gz')
 
     # -- curation
     .writeCurationSlotToCsv <- function(curationSlot, filePath, objectName) {
@@ -143,7 +143,7 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
     # Converts R code needed to recreate each object as a string; can string parse the data out of them in Python
     #   or simply use `eval(parse(text=<code as string>))`; for S4 classes, there may be issues recreating them
     #   due to different package versions using different constructor synatx
-    .captureCodeAsString <- function(object) 
+    .captureCodeAsString <- function(object)
         paste0(capture.output(dput(object)), collapse='')
 
     metadataDT <- as.data.table(lapply(metadata(SE), .captureCodeAsString))
@@ -160,18 +160,18 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
 #'  can be split into to their original stucture.
 #'
 #' @param annotations `list` Annotations as returned by the `annotaiton` function
-#' @param dsType `character(1)` 
+#' @param dsType `character(1)`
 #' @param filePath `character(1)` The path to save the output file to.
 #' @param objectName `character(1)` The name of the PSet the annotations are from.
-#' @param sepChar `character(1)` Separator to use when pasting together 
+#' @param sepChar `character(1)` Separator to use when pasting together
 #'   multiple lines of a list item.
 #'
 #' @return Writes to disk, does not return.
 #'
 #' @keywords internal
 #' @export
-.writeAnnotationToTxt <- function(annotations, dsType, filePath, objectName, 
-    sepChar="|||") 
+.writeAnnotationToTxt <- function(annotations, dsType, filePath, objectName,
+    sepChar="|||")
 {
     file <- file.path(filePath, paste0(objectName, '@annotations.txt'))
 
@@ -187,7 +187,7 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
     # -- Version
     version <- annotations$version
 
-    annots <- rbind(objectName, dateCreated, sessInfo, creationCall, version, 
+    annots <- rbind(objectName, dateCreated, sessInfo, creationCall, version,
         dsType)
 
     write.table(annots, file=file, sep="\n", row.names=FALSE, col.names=FALSE)
@@ -205,7 +205,7 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
     for (i in seq_along(sensSlotDTs))
         fwrite(sensSlotDTs[[i]],
             file=file.path(filePath,
-                paste0(objectName, '@sensitivity$', names(sensSlotDTs)[i], 
+                paste0(objectName, '@sensitivity$', names(sensSlotDTs)[i],
                     '.csv.gz')),
                 compress='gzip')
 }
@@ -235,7 +235,7 @@ setMethod("writeToCsv", signature(object="PharmacoSet"), function(object, filePa
     names(sensData) <- paste0('raw.', dimnames(sensRaw)[[3]])
 
     # -- info, prof, n
-    sensMetadata <- lapply(sensSlot[c('info', 'profiles', 'n')], 
+    sensMetadata <- lapply(sensSlot[c('info', 'profiles', 'n')],
         FUN=data.table, keep.rownames='.rownames')
 
    # -- merge lists & return
